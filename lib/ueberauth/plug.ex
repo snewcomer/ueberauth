@@ -48,7 +48,6 @@ defmodule Ueberauth.Plug do
   * On Failure - An `Ueberauth.Failure` struct is available at `:ueberauth_failure`
   * On Success - An `Ueberauth.Auth` struct is available at `:ueberauth_auth`
 
-
   ### An Example
 
   When using this plug, you must pass in your configuration.
@@ -156,8 +155,7 @@ defmodule Ueberauth.Plug do
     Logger.debug(fn -> "[#{__MODULE__}] Handling request phase #{name}" end)
     suffix = callback_suffix(config)
 
-    request_uri = Helpers.request_uri(conn)
-    request_uri = %{request_uri | path: Path.join(request_uri.path, suffix)}
+    request_uri = %{Helpers.request_uri(conn) | path: Path.join(request_uri.path, suffix)}
 
     redirect_url =
       strategy.challenge_url(%{callback_url: to_string(request_uri), conn: conn}, opts)
@@ -203,13 +201,13 @@ defmodule Ueberauth.Plug do
   defp validate_config!([]), do: raise_invalid_config!()
   defp validate_config!(config) do
     case Keyword.get(config, :providers) do
-      providers when is_list(providers) ->
-        if length(providers) == 0, do: raise_invalid_config!()
+      [] -> raise_invalid_config!()
+      providers when is_list(providers) -> providers
       _ -> raise_invalid_config!()
     end
   end
 
-  defp raise_invalid_config!() do
+  defp raise_invalid_config! do
     raise "invalid configuration for Ueberauth.Plug"
   end
 

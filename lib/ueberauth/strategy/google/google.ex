@@ -45,7 +45,8 @@ defmodule Ueberauth.Strategy.Google do
         |> put_non_nil(:access_type, Map.get(params, :access_type))
 
       url =
-        (opts ++ [redirect_uri: url])
+        opts
+        |> Keyword.put(:redirect_uri, url)
         |> __MODULE__.OAuth.client()
         |> __MODULE__.OAuth.authorize_url(params)
 
@@ -99,7 +100,8 @@ defmodule Ueberauth.Strategy.Google do
 
   defp auth(provider, token, user, opts) do
     scopes =
-      (token.other_params["scope"] || "")
+      token.other_params
+      |> Map.get("scope", "")
       |> String.split(",")
 
     auth =
